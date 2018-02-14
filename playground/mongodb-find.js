@@ -1,7 +1,10 @@
-const {MongoClient, ObjectID} = require('mongodb');
+const {
+  MongoClient,
+  ObjectID
+} = require('mongodb');
 
 MongoClient.connect('mongodb://localhost:27017/ToDoApp', (err, client) => {
-  if(err){
+  if (err) {
     return console.log('Error connecting the database');
   }
 
@@ -16,10 +19,10 @@ MongoClient.connect('mongodb://localhost:27017/ToDoApp', (err, client) => {
   //       console.log(err);
   // });
   db.collection('Todos').find().count().then((count) => {
-  console.log(`count is: ${count}`);
+    console.log(`count is: ${count}`);
   }).catch((err) => {
     console.log(err);
-});
+  });
 
 
 });
