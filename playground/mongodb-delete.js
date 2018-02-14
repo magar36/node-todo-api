@@ -28,4 +28,11 @@ MongoClient.connect('mongodb://localhost:27017/ToDoApp', (err, resp) => {
     console.log(result);
   });
 
+  // db.collection('Users').findOneAndDelete({
+  //   name: 'xyz',
+  //   age: 28
+  // }).then((result) => {
+  //   console.log(result);
+  // });
+
 });
