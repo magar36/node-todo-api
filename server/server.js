@@ -15,7 +15,7 @@ var app = express();
 
 app.use(parser.json());
 
-app.post('/todo', (req, resp) => {
+app.post('/todos', (req, resp) => {
   //console.log(req.body);
   var todoInstance = new ToDo(req.body);
   todoInstance.save().then((doc) => {
@@ -24,6 +24,17 @@ app.post('/todo', (req, resp) => {
     resp.status(400).send(err);
   });
 });
+
+app.get('/todos' , (req, resp) => {
+
+  ToDo.find().then((todos) => {
+    resp.send({todos});
+  }, (e) => {
+    resp.send(e);
+  });
+
+});
+
 
 app.listen(2400, () => {
   console.log('Listening on port 2400');

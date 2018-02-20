@@ -18,7 +18,7 @@ describe('POST /todos', () => {
     var text = 'Trying to post a test todo';
 
     supertest(app)
-      .post('/todo')
+      .post('/todos')
       .send({
         text
       })
@@ -44,7 +44,7 @@ it('should give an error as empty body is sent' , (done) => {
   var text = '';
 
   supertest(app)
-    .post('/todo')
+    .post('/todos')
     .send({text})
     .expect(200)
     .expect((res) => {
