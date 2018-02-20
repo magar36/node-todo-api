@@ -28,3 +28,5 @@ app.post('/todo', (req, resp) => {
 app.listen(2400, () => {
   console.log('Listening on port 2400');
 });
+
+module.exports = {app};

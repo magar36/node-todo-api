@@ -1,6 +1,6 @@
 var mongoose =  require('mongoose');
 
-mongoose.Partial = global.Partial;
+mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/ToDoApp');
 
 module.exports = {
