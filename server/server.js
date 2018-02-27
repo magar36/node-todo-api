@@ -30,7 +30,7 @@ app.get('/todos' , (req, resp) => {
   ToDo.find().then((todos) => {
     resp.send({todos});
   }, (e) => {
-    resp.send(e);
+    resp.status(400).send(e);
   });
 
 });
