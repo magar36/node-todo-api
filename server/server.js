@@ -2,6 +2,8 @@ const express = require('express');
 const parser = require('body-parser');
 const {ObjectID} = require('mongodb');
 
+var port = process.env.PORT || 2400;
+
 const {
   mongoose
 } = require('./db/mongoose');
@@ -56,8 +58,8 @@ app.get('/todos/:id', (req, resp) => {
 
 });
 
-app.listen(2400, () => {
-  console.log('Listening on port 2400');
+app.listen(port, () => {
+  console.log(`Listening on port ${port}`);
 });
 
 module.exports = {
