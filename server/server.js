@@ -1,6 +1,8 @@
 const express = require('express');
 const parser = require('body-parser');
-const {ObjectID} = require('mongodb');
+const {
+  ObjectID
+} = require('mongodb');
 
 var port = process.env.PORT || 2400;
 
@@ -43,18 +45,38 @@ app.get('/todos', (req, resp) => {
 app.get('/todos/:id', (req, resp) => {
 
   var id = req.params.id;
-  if(!ObjectID.isValid(id)){
+  if (!ObjectID.isValid(id)) {
     return resp.status(404).send();
   };
 
   ToDo.findById(id).then((todo) => {
-    if(!todo){
+    if (!todo) {
       return resp.status(404).send();
     }
-    resp.send({todo});
+    resp.send({
+      todo
+    });
   }).catch((e) => {
     resp.status(400).send();
   });
+
+});
+
+app.delete('/todos/:id', (req, resp) => {
+
+  var id = req.params.id;
+  if(!ObjectID.isValid(id)){
+    return resp.status(404).send();
+  };
+
+ToDo.findByIdAndRemove(id).then((res) => {
+  if(!res){
+    return resp.status(404).send();
+  };
+  resp.send(res);
+}).catch((e) => {
+  resp.status(400).send();
+});
 
 });
 
