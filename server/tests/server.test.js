@@ -1,5 +1,6 @@
 const expect = require('expect');
 const supertest = require('supertest');
+const {ObjectID} = require('mongodb');
 
 const {
   app
@@ -10,9 +11,11 @@ const {
 
 var testTodos = [
   {
+    _id: new ObjectID(),
     text: 'sample todo 1',
   },
   {
+    _id: new ObjectID(),
     text: 'sample todo 2',
   }
 ];
@@ -84,4 +87,32 @@ describe('GET /todos' , () => {
       }).
       end(done);
   });
+});
+
+
+describe('GET /todos/:id', () => {
+  it('should get todo based on id', (done) => {
+    supertest(app)
+    .get(`/todos/${testTodos[0]._id.toHexString()}`)
+    .expect(200)
+    .expect((resp) => {
+      expect (resp.body.todo.text).toBe(testTodos[0].text);
+    })
+    .end(done);
+  });
+
+  it('should return 404 if no id found', (done) => {
+    supertest(app)
+      .get(`/todos/${new ObjectID().toHexString()}`)
+      .expect(404)
+      .end(done);
+  });
+
+  it('should return 404 for invalid id', (done) => {
+    supertest(app)
+      .get(`/todos/123`)
+      .expect(404)
+      .end(done);
+  });
+
 });
