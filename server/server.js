@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const express = require('express');
 const parser = require('body-parser');
 const {
@@ -77,6 +78,42 @@ ToDo.findByIdAndRemove(id).then((todo) => {
 }).catch((e) => {
   resp.status(400).send();
 });
+
+});
+
+
+app.patch('/todos/:id', (req, resp) => {
+
+  var id = req.params.id;
+
+  if(!ObjectID.isValid(id)){
+    return resp.status(404).send();
+  };
+
+  var body = _.pick(req.body, ['text', 'completed']);
+
+  if(_.isBoolean(body.completed) && body.completed){
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  ToDo.findByIdAndUpdate(id,
+    {
+      $set:body
+    },
+    {
+      new: true
+    }
+  ).then((todo) => {
+    if(!todo){
+      return resp.status(404).send();
+    }
+    resp.send({todo});
+  }).catch((e) => {
+    resp.status(400).send();
+  });
 
 });
 
