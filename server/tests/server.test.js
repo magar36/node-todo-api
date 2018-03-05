@@ -18,6 +18,8 @@ var testTodos = [{
   {
     _id: new ObjectID(),
     text: 'sample todo 2',
+    completed: true,
+    completedAt: 123
   }
 ];
 
@@ -164,5 +166,51 @@ describe('DELETE /todos/:id', () => {
       .expect(404)
       .end(done)
   });
+
+});
+
+
+describe('PATCH /todos/:id', () => {
+
+  it('should update the todo' , (done) => {
+
+    var id = testTodos[0]._id.toHexString();
+    var reqBody = {
+      text: "testing first patch",
+      completed: true
+    };
+
+    supertest(app)
+      .patch(`/todos/${id}`)
+      .send(reqBody)
+      .expect(200)
+      .expect((resp) => {
+        expect(resp.body.todo.completed).toBe(true);
+        expect(resp.body.todo.text).toBe(reqBody.text);
+        expect(resp.body.todo.completedAt).toBeA('number');
+      })
+      .end(done);
+  });
+
+it('should clear completedAt when todo is not completed', (done) => {
+
+  var id = testTodos[1]._id.toHexString();
+  var reqBody = {
+    text: "testing second patch",
+    completed: false
+  };
+
+  supertest(app)
+    .patch(`/todos/${id}`)
+    .send(reqBody)
+    .expect(200)
+    .expect((resp) => {
+      expect(resp.body.todo.text).toBe(reqBody.text);
+      expect(resp.body.todo.completed).toBe(false);
+      expect(resp.body.todo.completedAt).toNotExist();
+    })
+    .end(done);
+
+});
 
 });
