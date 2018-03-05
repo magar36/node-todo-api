@@ -13,7 +13,7 @@ const {
 
 var testTodos = [{
     _id: new ObjectID(),
-    text: 'sample todo 1',
+    text: 'sample todo 1'
   },
   {
     _id: new ObjectID(),
