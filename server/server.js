@@ -69,11 +69,11 @@ app.delete('/todos/:id', (req, resp) => {
     return resp.status(404).send();
   };
 
-ToDo.findByIdAndRemove(id).then((res) => {
-  if(!res){
+ToDo.findByIdAndRemove(id).then((todo) => {
+  if(!todo){
     return resp.status(404).send();
   };
-  resp.send(res);
+  resp.send({todo});
 }).catch((e) => {
   resp.status(400).send();
 });
