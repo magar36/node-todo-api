@@ -119,6 +119,24 @@ app.patch('/todos/:id', (req, resp) => {
 
 });
 
+app.post('/users', (req, res) => {
+
+  var userParams = _.pick(req.body, ['email', 'password']);
+  var userInput = new User(userParams);
+
+  //next two lines of code can be replaced with the commented line below
+  //userInput.generateAuthToken().then((token) => {
+
+  userInput.save().then(() => {  //same as userInput.save().then((user); return user.generateAuthToken();
+    return userInput.generateAuthToken();
+  }).then((token) => {
+    res.header('x-auth', token).send(userInput);
+  }).catch((e) => {
+    res.status(400).send(e);
+  });
+
+});
+
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
