@@ -25,73 +25,73 @@ var app = express();
 
 app.use(parser.json());
 
-app.post('/todos', (req, resp) => {
+app.post('/todos', (req, res) => {
   //console.log(req.body);
   var todoInstance = new ToDo(req.body);
   todoInstance.save().then((doc) => {
-    resp.send(doc);
+    res.send(doc);
   }, (err) => {
-    resp.status(400).send(err);
+    res.status(400).send(err);
   });
 });
 
-app.get('/todos', (req, resp) => {
+app.get('/todos', (req, res) => {
 
   ToDo.find().then((todos) => {
-    resp.send({
+    res.send({
       todos
     });
   }, (e) => {
-    resp.status(400).send(e);
+    res.status(400).send(e);
   });
 
 });
 
-app.get('/todos/:id', (req, resp) => {
+app.get('/todos/:id', (req, res) => {
 
   var id = req.params.id;
   if (!ObjectID.isValid(id)) {
-    return resp.status(404).send();
+    return res.status(404).send();
   };
 
   ToDo.findById(id).then((todo) => {
     if (!todo) {
-      return resp.status(404).send();
+      return res.status(404).send();
     }
-    resp.send({
+    res.send({
       todo
     });
   }).catch((e) => {
-    resp.status(400).send();
+    res.status(400).send();
   });
 
 });
 
-app.delete('/todos/:id', (req, resp) => {
+app.delete('/todos/:id', (req, res) => {
 
   var id = req.params.id;
   if(!ObjectID.isValid(id)){
-    return resp.status(404).send();
+    return res.status(404).send();
   };
 
 ToDo.findByIdAndRemove(id).then((todo) => {
   if(!todo){
-    return resp.status(404).send();
+    return res.status(404).send();
   };
-  resp.send({todo});
+  res.send({todo});
 }).catch((e) => {
-  resp.status(400).send();
+  res.status(400).send();
 });
 
 });
 
 
-app.patch('/todos/:id', (req, resp) => {
+app.patch('/todos/:id', (req, res) => {
 
   var id = req.params.id;
 
   if(!ObjectID.isValid(id)){
-    return resp.status(404).send();
+    return res.status(404).send();
   };
 
   var body = _.pick(req.body, ['text', 'completed']);
@@ -112,11 +112,11 @@ app.patch('/todos/:id', (req, resp) => {
     }
   ).then((todo) => {
     if(!todo){
-      return resp.status(404).send();
+      return res.status(404).send();
     }
-    resp.send({todo});
+    res.send({todo});
   }).catch((e) => {
-    resp.status(400).send();
+    res.status(400).send();
   });
 
 });
@@ -139,9 +139,21 @@ app.post('/users', (req, res) => {
 
 });
 
-// app.get('/users/me', authenticate, (req, resp) => {
+// app.get('/users/me', authenticate, (req, res) => {
 //   res.send(req.user);
 // });
+
+app.post('/users/login', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password']);
+
+  User.findByCredentials(body.email, body.password).then((user) => {
+      return user.generateAuthToken().then((token) => {
+        res.header('x-auth', token).send(user);
+      });
+    }).catch((e) => {
+    res.status(400).send();
+  });
+});
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
