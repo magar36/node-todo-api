@@ -206,29 +206,29 @@ it('should clear completedAt when todo is not completed', (done) => {
 
 });
 
-// describe('GET /users/me', () => {
-//     it('should return user if authenticated', (done) => {
-//       supertest(app)
-//         .get('/users/me')
-//         .set('x-auth', testUsers.tokens[0].token)
-//         .expect(200)
-//         .expect((res) => {
-//           expect(res.body._id).toBe(testUsers[0]._id.toHexString());
-//           expect(res.body.email).toBe(testUsers[0].email);
-//         })
-//         .end(done);
-//     });
-//
-//     it('should return 401 if user not authenticated', (done) => {
-//       supertest(app)
-//         .get('/users/me')
-//         .expect(401)
-//         .expect((res) => {
-//           expect(res.body).toEqual({});
-//         })
-//         .end(done);
-//     });
-// });
+describe('GET /users/me', () => {
+    it('should return user if authenticated', (done) => {
+      supertest(app)
+        .get('/users/me')
+        .set('x-auth', testUsers.tokens[0].token)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body._id).toBe(testUsers[0]._id.toHexString());
+          expect(res.body.email).toBe(testUsers[0].email);
+        })
+        .end(done);
+    });
+
+    it('should return 401 if user not authenticated', (done) => {
+      supertest(app)
+        .get('/users/me')
+        .expect(401)
+        .expect((res) => {
+          expect(res.body).toEqual({});
+        })
+        .end(done);
+    });
+});
 
 describe('POST /users', () => {
     it('should create a user', (done) => {
@@ -335,5 +335,28 @@ describe('POST /users/login', () => {
         });
     });
 
+
+});
+
+
+describe('DELETE /users/me/token', () => {
+    it('should remove auth token on logout', (done) => {
+
+      supertest(app)
+        .delete('/users/me/token')
+        .set('x-auth', testUsers[0].tokens[0].token)
+        .expect(200)
+        .end((err, res) => {
+          if(err) {
+            return done(err);
+          }
+
+          User.findById(testUsers[0]._id).then((testUser) => {
+            expect(testUser.tokens.length).toBe(0);
+            done();
+          }).catch((e) => done(e));
+
+        });
+    });
 
 });
