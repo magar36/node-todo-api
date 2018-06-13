@@ -18,6 +18,8 @@ const {
 const {
   User
 } = require('./models/user');
+//const authenticate = require('./../middleware/middleware');
+
 
 var app = express();
 
@@ -136,6 +138,10 @@ app.post('/users', (req, res) => {
   });
 
 });
+
+// app.get('/users/me', authenticate, (req, resp) => {
+//   res.send(req.user);
+// });
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);

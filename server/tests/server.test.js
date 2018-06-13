@@ -10,24 +10,15 @@ const {
 const {
   ToDo
 } = require('./../models/todo');
+const {
+  User
+} = require('./../models/user');
+const {testTodos, populateTodos, testUsers, populateUsers} = require('./seed/seed');
 
-var testTodos = [{
-    _id: new ObjectID(),
-    text: 'sample todo 1'
-  },
-  {
-    _id: new ObjectID(),
-    text: 'sample todo 2',
-    completed: true,
-    completedAt: 123
-  }
-];
 
-beforeEach((done) => {
-  ToDo.remove({}).then(() => {
-    return ToDo.insertMany(testTodos);
-  }).then(() => done());
-});
+beforeEach(populateTodos);
+beforeEach(populateUsers);
+
 
 describe('POST /todos', () => {
   it('should create a test todo', (done) => {
@@ -213,4 +204,79 @@ it('should clear completedAt when todo is not completed', (done) => {
 
 });
 
+});
+
+// describe('GET /users/me', () => {
+//     it('should return user if authenticated', (done) => {
+//       supertest(app)
+//         .get('/users/me')
+//         .set('x-auth', testUsers.tokens[0].token)
+//         .expect(200)
+//         .expect((res) => {
+//           expect(res.body._id).toBe(testUsers[0]._id.toHexString());
+//           expect(res.body.email).toBe(testUsers[0].email);
+//         })
+//         .end(done);
+//     });
+//
+//     it('should return 401 if user not authenticated', (done) => {
+//       supertest(app)
+//         .get('/users/me')
+//         .expect(401)
+//         .expect((res) => {
+//           expect(res.body).toEqual({});
+//         })
+//         .end(done);
+//     });
+// });
+
+describe('POST /users', () => {
+    it('should create a user', (done) => {
+      var email = 'test@test.com';
+      var password = 'test123';
+
+      supertest(app)
+        .post('/users')
+        .send({email, password})
+        .expect(200)
+        .expect((res) => {
+          expect(res.headers['x-auth']).toExist();
+          expect(res.body._id).toExist();
+          expect(res.body.email).toBe(email);
+        })
+        .end((err) => {
+          if(err) {
+            return done(err);
+          }
+
+          User.findOne({email}).then((testUser) => {
+            expect(testUser).toExist();
+            expect(testUser.password).toNotBe(password);
+            done();
+          });
+
+        });
+    });
+
+    it('should return validation errors if user invalid', (done) => {
+      supertest(app)
+        .post('/users')
+        .send({
+          email: 'someemail@test.com',
+          password: 'fake'
+        })
+        .expect(400)
+        .end(done);
+    });
+
+    it('should not create user if email in use', (done) => {
+      supertest(app)
+        .post('/users')
+        .send({
+          email: testUsers[0].email,
+          password: 'fake123'
+        })
+        .expect(400)
+        .end(done);
+    });
 });
