@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const bcrypt = require('bcryptjs');
 
-var userSchema = new mongoose.Schema({
+var UserSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
@@ -35,7 +35,7 @@ var userSchema = new mongoose.Schema({
 });
 
 //Instead of overriding an existing method toJSON, we can define a new function and call it from server.js
-// userSchema.methods.somefunc = function() {
+// UserSchema.methods.somefunc = function() {
 //   var user = this;
 //   userObj = user.toObject();
 //   return _.pick(userObj, ['_id']);
@@ -44,13 +44,13 @@ var userSchema = new mongoose.Schema({
 //advantage of using toJSON: no need to make an explicit call
 //is called directly by JSON.stringify which is called by res.send
 
-userSchema.methods.toJSON = function() {
+UserSchema.methods.toJSON = function() {
   var user = this;
   userObj = user.toObject();
   return _.pick(userObj, ['_id', 'email']);
 };
 
-userSchema.methods.generateAuthToken = function(){
+UserSchema.methods.generateAuthToken = function(){
   var user = this;
   var access = 'auth';
   var token = jwt.sign({_id: user._id.toHexString(), access},'key123');
@@ -62,7 +62,17 @@ userSchema.methods.generateAuthToken = function(){
   });
 };
 
-userSchema.statics.findByToken = function(token) {
+UserSchema.methods.removeToken = function(token) {
+  var user = this;
+
+  return user.update({
+    $pull: {
+      tokens: {token}
+    }
+  })
+};
+
+UserSchema.statics.findByToken = function(token) {
   var User = this;
   var decoded;
 
@@ -80,7 +90,7 @@ return User.findOne({
 
 };
 
-userSchema.statics.findByCredentials = function (email, password) {
+UserSchema.statics.findByCredentials = function (email, password) {
   var User = this;
 
   return User.findOne({email}).then((user) => {
@@ -100,7 +110,7 @@ userSchema.statics.findByCredentials = function (email, password) {
   });
 };
 
-userSchema.pre('save', function (next) {
+UserSchema.pre('save', function (next) {
   var user = this;
 
   if(user.isModified('password')){
@@ -115,6 +125,6 @@ userSchema.pre('save', function (next) {
   }
 });
 
-var User = mongoose.model('Users', userSchema);
+var User = mongoose.model('Users', UserSchema);
 
 module.exports = {User};
