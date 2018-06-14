@@ -25,19 +25,26 @@ var app = express();
 
 app.use(parser.json());
 
-app.post('/todos', (req, res) => {
+app.post('/todos', authenticate, (req, res) => {
   //console.log(req.body);
-  var todoInstance = new ToDo(req.body);
-  todoInstance.save().then((doc) => {
+
+  var todo = new ToDo({
+    text: req.body.text,
+    _creator: req.user._id
+  });
+
+  todo.save().then((doc) => {
     res.send(doc);
   }, (err) => {
     res.status(400).send(err);
   });
 });
 
-app.get('/todos', (req, res) => {
+app.get('/todos', authenticate, (req, res) => {
 
-  ToDo.find().then((todos) => {
+  ToDo.find({
+    _creator: req.user._id
+  }).then((todos) => {
     res.send({
       todos
     });
@@ -47,14 +54,17 @@ app.get('/todos', (req, res) => {
 
 });
 
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
 
   var id = req.params.id;
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   };
 
-  ToDo.findById(id).then((todo) => {
+  ToDo.findOne({
+    _id: id,
+    _creator: req.user._id
+  }).then((todo) => {
     if (!todo) {
       return res.status(404).send();
     }
@@ -67,14 +77,17 @@ app.get('/todos/:id', (req, res) => {
 
 });
 
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
 
   var id = req.params.id;
   if(!ObjectID.isValid(id)){
     return res.status(404).send();
   };
 
-ToDo.findByIdAndRemove(id).then((todo) => {
+ToDo.findOneAndRemove({
+  _id: id,
+  _creator: req.user._id
+}).then((todo) => {
   if(!todo){
     return res.status(404).send();
   };
@@ -86,7 +99,7 @@ ToDo.findByIdAndRemove(id).then((todo) => {
 });
 
 
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
 
   var id = req.params.id;
 
@@ -103,7 +116,10 @@ app.patch('/todos/:id', (req, res) => {
     body.completedAt = null;
   }
 
-  ToDo.findByIdAndUpdate(id,
+  ToDo.findOneAndUpdate({
+    _id: id,
+    _creator: req.user._id
+  },
     {
       $set:body
     },
